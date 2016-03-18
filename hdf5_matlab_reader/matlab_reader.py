@@ -12,8 +12,8 @@ def loadmat(f):
 
 def extract_file(f):
     def avoid_refs(kv):
+        #refs are extracted under the structures they correspond to
         k, v = kv
-        #return True
         return not k.startswith(u'#refs#')
 
     return {k:extract_element(f, v) for k, v in filter(avoid_refs,
@@ -31,12 +31,15 @@ def extract_group(f, group):
     return {k:extract_element(f, v) for k, v in group.iteritems()}
 
 def extract_dataset(f, dataset):
+    if 'MATLAB_class' not in dataset.attrs:
+        #this occurs in sparse arrays, which can be special cased to do
+        #sparse representations. this case is still wise.
+        return dataset.value
+
     data_class = dataset.attrs['MATLAB_class']
     
-    #print 'korent', dataset, type(dataset)
-
     if data_class == 'struct' and 'MATLAB_empty' in dataset.attrs:
-        #check immediately for empty struct
+        #empty struct
         return {}
 
     elif 'MATLAB_empty' in dataset.attrs and dataset.attrs['MATLAB_empty'] == 1:
@@ -61,14 +64,20 @@ def extract_dataset(f, dataset):
         #encoded in matlab as ubyte, we force as bool
         return dataset.value.astype(bool)
 
-    elif data_class in ('cell', 'FileWrapper__'):
+    elif data_class == 'cell':
         return extract_cell(f, dataset)
 
     elif data_class == 'char':
         return extract_string(dataset)
 
-    elif data_class in ('categorical',):
+    # don't really know what to do with these datatypes, they require
+    # considerable parsing to do something smart. For now we import their 
+    # HDF5 structure in big unwieldy objects and let the user deal with them
+    elif data_class in ('categorical', 'datetime', 'containers.Map', 'table'):
         return dataset.value
+
+    elif data_class == 'FileWrapper__':
+        return extract_cell(f, dataset)
 
 def indexarg(f, arg):
     '''
@@ -82,13 +91,10 @@ def extract_cell(f, dataset):
     '''
     return np.squeeze(
             map_ndlist(
-             partial(extract_dataset, f),
+             partial(extract_element, f),
              map(partial(map_ndarray,
                          partial(indexarg, f)),
                  dataset.value)))
-
-def byte_to_unicode(b):
-    return str(b).decode('hex').decode('utf-8')
 
 def bytearray_to_string(z):
     return ''.join(map(unichr, z))

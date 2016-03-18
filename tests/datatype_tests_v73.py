@@ -38,9 +38,3 @@ def test_cyrillic_string():
     x = hmr.loadmat(matfile)[field]
     print(x)
     assert x == u'зелёный'
-
-def test_categorical_array():
-    matfile = 'samplesv73/categorical_array.mat'
-    x = hmr.loadmat(matfile)
-    print(x['#subsystem#']['MCOS'])
-    assert 'RI' in x['#subsystem#']['MCOS'][2]

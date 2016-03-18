@@ -5,6 +5,7 @@ import h5py
 
 def disp2(n,o):
     print n,o
+    print o.attrs.items()
 
 def tree(f):
     h5_file = h5py.File(f, 'r')

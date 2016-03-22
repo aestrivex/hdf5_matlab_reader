@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 from scipy import sparse
 from functools import partial
-from empty_matrix import EmptyMatrix
+from hdf5_matlab_reader.empty_matrix import EmptyMatrix
 
 def loadmat(f):
     h5_file = h5py.File(f, 'r')

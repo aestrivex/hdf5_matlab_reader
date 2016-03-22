@@ -15,8 +15,9 @@ class EmptyMatrix():
     def __int__(self):
         return 0
 
+    #does not use long in python 3, should be fine
     def __long__(self):
-        return 0L
+        return 0
 
     def __float__(self):
         return 0.

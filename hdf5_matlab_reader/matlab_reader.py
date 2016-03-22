@@ -3,6 +3,7 @@
 import sys
 import h5py
 import numpy as np
+from scipy import sparse
 from functools import partial
 from empty_matrix import EmptyMatrix
 
@@ -28,6 +29,9 @@ def extract_element(f, element):
         raise NotImplementedError('Unimplemented HDF5 structure')
 
 def extract_group(f, group):
+    if 'MATLAB_sparse' in group.attrs:
+        return extract_sparse(f, group)
+
     return {k:extract_element(f, v) for k, v in group.iteritems()}
 
 def extract_dataset(f, dataset):
@@ -37,7 +41,7 @@ def extract_dataset(f, dataset):
         return dataset.value
 
     data_class = dataset.attrs['MATLAB_class']
-    
+
     if data_class == 'struct' and 'MATLAB_empty' in dataset.attrs:
         #empty struct
         return {}
@@ -78,6 +82,24 @@ def extract_dataset(f, dataset):
 
     elif data_class == 'FileWrapper__':
         return extract_cell(f, dataset)
+
+def extract_sparse(f, group):
+    data = group['data'].value
+    rows = group['ir'].value
+    cols = group['jc'].value
+
+    mtype = group.attrs['MATLAB_class']
+
+    nr = group.attrs['MATLAB_sparse']       #nr_rows
+    nc = len(cols) - 1                      #nr_cols
+    ne = len(rows)                          #nr_elements
+
+    #convert col to indptr from dense ptr
+    compress_col = [np.where(cols == i)[0][-1] for i in np.arange(ne)]
+
+    #if encoded as matlab as ubyte, we enforce bool
+    return sparse.coo_matrix((data, (rows, compress_col)), shape=(nr, nc),
+        dtype=bool if mtype == 'logical' else None)
 
 def indexarg(f, arg):
     '''

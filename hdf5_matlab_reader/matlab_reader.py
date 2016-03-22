@@ -18,8 +18,7 @@ def extract_file(f):
         k, v = kv
         return not k.startswith(u'#refs#')
 
-    return {k:extract_element(f, v) for k, v in filter(avoid_refs,
-                                                       f.iteritems())}
+    return {k:extract_element(f, v) for k, v in filter(avoid_refs, f.items())}
 
 def extract_element(f, element):
     if type(element) is h5py._hl.dataset.Dataset:
@@ -33,7 +32,7 @@ def extract_group(f, group):
     if 'MATLAB_sparse' in group.attrs:
         return extract_sparse(f, group)
 
-    return {k:extract_element(f, v) for k, v in group.iteritems()}
+    return {k:extract_element(f, v) for k, v in group.items()}
 
 def extract_dataset(f, dataset):
     if 'MATLAB_class' not in dataset.attrs:
@@ -184,7 +183,7 @@ if __name__ == '__main__':
 
         print(mat_out)
 
-        for k, v in mat_out.iteritems():
+        for k, v in mat_out.items():
             print(k, np.shape(v))
 
         import pdb

@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+from __future__ import division, print_function
 
 import sys
 import h5py
 
 def disp2(n,o):
-    print n,o
-    print o.attrs.items()
+    print(n,o)
+    print(o.attrs.items())
 
 def tree(f):
     h5_file = h5py.File(f, 'r')

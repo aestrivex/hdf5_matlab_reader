@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division, print_function
 
 import sys
 import h5py
@@ -181,10 +182,10 @@ if __name__ == '__main__':
         h5_file = h5py.File(matfile, 'r')
         mat_out = extract_file(h5_file)
 
-        print mat_out
+        print(mat_out)
 
         for k, v in mat_out.iteritems():
-            print k, np.shape(v)
+            print(k, np.shape(v))
 
         import pdb
         pdb.set_trace()

@@ -7,7 +7,7 @@ def read(fname):
 
 setuptools.setup(
     name="hdf5_matlab_reader",
-    version="0.1.0",
+    version="0.1.1",
     maintainer="Roan LaPlante",
     maintainer_email="rlaplant@nmr.mgh.harvard.edu",
     description=("HDF5 Matlab Reader"),

@@ -3,4 +3,5 @@ This is an imeplementation of a reader for .mat files using the HDF5 data format
  
 # Dependencies
 * numpy
+* scipy
 * h5py

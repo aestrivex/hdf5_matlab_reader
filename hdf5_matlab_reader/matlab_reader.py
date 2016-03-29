@@ -35,9 +35,16 @@ def extract_group(f, group):
     return {k:extract_element(f, v) for k, v in group.items()}
 
 def extract_dataset(f, dataset):
+    #extract generic -- in some cases, a dataset can have a bunch of references
+    #this probably happens when the file is so large and has many structs that
+    #its hard to represent without a reference structure, but i'm not
+    #exactly sure.
+    if len(dataset.attrs) == 0:
+        return map_ndlist(partial(extract_generic, f), dataset.value)
+
     if 'MATLAB_class' not in dataset.attrs:
-        #this occurs in sparse arrays, which can be special cased to do
-        #sparse representations. this case is still wise.
+        #i found this to occur in sparse arrays, which are special cased 
+        #above. this may not be necessary.
         return dataset.value
 
     data_class = dataset.attrs['MATLAB_class']
@@ -82,6 +89,12 @@ def extract_dataset(f, dataset):
 
     elif data_class == 'FileWrapper__':
         return extract_cell(f, dataset)
+
+def extract_generic(f, generic):
+    if isinstance(generic, h5py.Reference):
+        return indexarg(f, generic)
+    else:
+        return generic
 
 def extract_sparse(f, group):
     data = group['data'].value

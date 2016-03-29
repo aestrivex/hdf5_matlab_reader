@@ -40,7 +40,9 @@ def extract_dataset(f, dataset):
     #its hard to represent without a reference structure, but i'm not
     #exactly sure.
     if len(dataset.attrs) == 0:
-        return map_ndlist(partial(extract_generic, f), dataset.value)
+        return np.squeeze(map_ndarray(
+                            partial(extract_generic, f), 
+                            dataset.value))
 
     if 'MATLAB_class' not in dataset.attrs:
         #i found this to occur in sparse arrays, which are special cased 
@@ -91,8 +93,9 @@ def extract_dataset(f, dataset):
         return extract_cell(f, dataset)
 
 def extract_generic(f, generic):
+    #print(generic)
     if isinstance(generic, h5py.Reference):
-        return indexarg(f, generic)
+        return extract_element(f, indexarg(f, generic))
     else:
         return generic
 

@@ -25,6 +25,8 @@ def extract_element(f, element):
         return extract_dataset(f, element)
     elif type(element) is h5py._hl.group.Group:
         return extract_group(f, element)
+    elif type(element) is h5py.Reference:
+        return extract_generic(f, element)
     else:
         raise NotImplementedError('Unimplemented HDF5 structure')
 
